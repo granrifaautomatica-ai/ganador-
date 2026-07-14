@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Configuración de Rifas</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #0d140f;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            background-color: rgba(13, 20, 15, 0.98);
+            max-width: 600px;
+            width: 100%;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 2px #d4af37;
+            box-sizing: border-box;
+        }
+        h2 {
+            text-align: center;
+            color: #d4af37;
+            font-family: 'Impact', Arial, sans-serif;
+            letter-spacing: 1px;
+            margin-top: 0;
+        }
+        .seccion {
+            border-bottom: 1px solid #444;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .seccion-titulo {
+            font-size: 14px;
+            color: #d4af37;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+        .campo {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-size: 13px;
+            color: #cdcdcd;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="number"], input[type="date"], textarea, select {
+            width: 100%;
+            padding: 11px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background-color: #0a0e0b;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input[type="color"] {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #444;
+            border-radius: 6px;
+            background: none;
+            cursor: pointer;
+            box-sizing: border-box;
+            padding: 2px;
+        }
+        input[type="color"]:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+        .color-grupo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .check-defecto {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #0a0e0b;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+        .check-defecto input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #d4af37;
+            cursor: pointer;
+        }
+        .check-defecto span {
+            font-size: 13px;
+            color: #cdcdcd;
+        }
+        textarea {
+            resize: vertical;
+            height: 60px;
+        }
+        button {
+            width: 100%;
+            background-color: #d4af37;
+            color: #000;
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #f3ca52;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* ================= ZONA DE RIESGO: RESET RIFA ================= */
+        .zona-riesgo {
+            margin-top: 25px;
+            border: 1px solid #7f1d1d;
+            border-radius: 8px;
+            padding: 15px;
+            background: rgba(127, 29, 29, 0.12);
+        }
+        .zona-riesgo .seccion-titulo { color: #ef4444; margin-bottom: 8px; }
+        .zona-riesgo p {
+            font-size: 12px;
+            color: #cdcdcd;
+            margin: 0 0 12px 0;
+            line-height: 1.5;
+        }
+        .btn-reset {
+            background-color: #b91c1c;
+            color: #fff;
+        }
+        .btn-reset:hover { background-color: #ef4444; }
+
+        /* Modal de confirmación del reset */
+        #modalReset {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        .modal-caja {
+            background: #0d140f;
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 440px;
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+        }
+        .modal-caja h3 {
+            color: #ef4444;
+            margin: 0 0 10px 0;
+            font-size: 18px;
+        }
+        .modal-caja p {
+            font-size: 13px;
+            color: #cdcdcd;
+            line-height: 1.6;
+            margin: 0 0 15px 0;
+        }
+        .modal-caja ul {
+            font-size: 13px;
+            color: #cdcdcd;
+            margin: 0 0 15px 0;
+            padding-left: 20px;
+            line-height: 1.7;
+        }
+        .modal-botones {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .modal-botones button { margin: 0; }
+        .btn-cancelar {
+            background: #334155;
+            color: #fff;
+        }
+        .btn-cancelar:hover { background: #475569; }
+        #btnConfirmarReset:disabled {
+            background: #5a5a5a;
+            color: #999;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Configuración General de la Rifa</h2>
+    <form id="formConfig">
+        
+        <div class="seccion">
+            <div class="seccion-titulo">Identidad del Sorteo</div>
+            <div class="campo">
+                <label>Título de la Rifa</label>
+                <input type="text" id="tituloRifa" required placeholder="Ej: GRAN RIFA PRO-FONDOS">
+            </div>
+            <div class="campo">
+                <label>Descripción Corta / Instrucciones</label>
+                <textarea id="descripcionRifa" required placeholder="Ej: SEPARA TU NÚMERO Y APOYA NUESTRA CAUSA"></textarea>
+            </div>
+        </div>
+
+        <div class="seccion">
+            <div class="seccion-titulo">Parámetros del Sorteo</div>
+            <div class="campo">
+                <label>Organizador / Encargado</label>
+                <input type="text" id="encargado" required>
+            </div>
+            <div class="campo">
+                <label>Fecha del Sorteo</label>
+                <input type="date" id="fechaSorteo" required>
+            </div>
+            <div class="campo">
+                <label>Valor del Boleto ($)</label>
+                <input type="number" id="valorRifa" required>
+            </div>
+            <div class="campo">
+                <label>Medio de Pago Principal</label>
+                <input type="text" id="medioPago" required placeholder="Ej: Nequi 3123456789">
+            </div>
+            <div class="campo">
+                <label>WhatsApp de Contacto Oficial</label>
+                <input type="text" id="whatsapp" required placeholder="Ej: +57 312 345 6789">
+            </div>
+        </div>
+
+        <div class="seccion">
+            <div class="seccion-titulo">Reglas de Automatización</div>
+            <div class="campo">
+                <label>¿Permitir una única participación por persona?</label>
+                <select id="unicaParticipacion">
+                    <option value="NO">NO (Un usuario puede comprar varios números)</option>
+                    <option value="SI">SI (Restringir a 1 boleta por Nombre/Teléfono)</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label>Días previos Alerta 1</label>
+                <input type="number" id="alerta1" value="0">
+            </div>
+            <div class="campo">
+                <label>Días previos Alerta 2</label>
+                <input type="number" id="alerta2" value="0">
+            </div>
+            <div class="campo">
+                <label>Días previos Alerta 3</label>
+                <input type="number" id="alerta3" value="0">
+            </div>
+        </div>
+
+        <!-- ================================================================
+             COLORES DEL TABLERO PÚBLICO (se guardan en MENU!B24:B29)
+             Marca la casilla para usar los colores de fábrica del tablero.
+             ================================================================ -->
+        <div class="seccion">
+            <div class="seccion-titulo">Colores del Tablero Público</div>
+
+            <label class="check-defecto" for="coloresDefecto">
+                <input type="checkbox" id="coloresDefecto" checked>
+                <span>Usar los colores por defecto del tablero (recomendado)</span>
+            </label>
+
+            <div class="color-grupo">
+                <div class="campo">
+                    <label>Fondo del Tablero (B24)</label>
+                    <input type="color" id="colFondo" value="#0d140f" disabled>
+                </div>
+                <div class="campo">
+                    <label>Fuente Descripción (B25)</label>
+                    <input type="color" id="colFuenteDescripcion" value="#a3b899" disabled>
+                </div>
+                <div class="campo">
+                    <label>Fuente Título (B26)</label>
+                    <input type="color" id="colFuenteTitulo" value="#f3ca52" disabled>
+                </div>
+                <div class="campo">
+                    <label>Fuente Números Libres (B27)</label>
+                    <input type="color" id="colFuenteNumeros" value="#38bdf8" disabled>
+                </div>
+                <div class="campo">
+                    <label>Fuente Números Tapados (B28)</label>
+                    <input type="color" id="colFuenteNumerosTapados" value="#ffffff" disabled>
+                </div>
+                <div class="campo">
+                    <label>Casilla que Tapa Números (B29)</label>
+                    <input type="color" id="colCasillaTapa" value="#b91c1c" disabled>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" id="btnGuardar">Guardar Configuración</button>
+    </form>
+
+    <!-- ================================================================
+         ZONA DE RIESGO: REINICIO TOTAL DE LA RIFA
+         Requiere la clave de administrador definida en MENU!B30 y
+         escribir la palabra RESET como doble confirmación.
+         ================================================================ -->
+    <div class="zona-riesgo">
+        <div class="seccion-titulo">⚠️ Zona de Riesgo</div>
+        <p>Reiniciar la rifa borra <b>todos los compradores</b> (nombres, teléfonos, correos y estados de pago) y devuelve la configuración a su estado inicial. Esta acción <b>no se puede deshacer</b>.</p>
+        <button type="button" class="btn-reset" onclick="abrirModalReset()">🗑️ Reset Rifa</button>
+    </div>
+</div>
+
+<!-- Modal de confirmación del reset -->
+<div id="modalReset">
+    <div class="modal-caja">
+        <h3>⚠️ ¿Reiniciar la rifa por completo?</h3>
+        <p>Estás a punto de ejecutar una acción <b>irreversible</b> que hará lo siguiente:</p>
+        <ul>
+            <li>Borrar <b>todos los compradores</b>: nombres, teléfonos, correos y pagos confirmados.</li>
+            <li>Limpiar la configuración: encargado, fecha, valor, medio de pago y alertas.</li>
+            <li>Restablecer el título, la descripción y los colores del tablero.</li>
+        </ul>
+        <div class="campo">
+            <label>Para continuar, escribe la palabra <b style="color:#ef4444;">RESET</b>:</label>
+            <input type="text" id="palabraReset" autocomplete="off" placeholder="Escribe RESET" oninput="validarPalabraReset()">
+        </div>
+        <div class="campo">
+            <label>Clave de administrador (celda B30 de la pestaña MENU):</label>
+            <input type="password" id="claveReset" autocomplete="off" placeholder="Clave de administrador">
+        </div>
+        <div class="modal-botones">
+            <button type="button" class="btn-cancelar" onclick="cerrarModalReset()">Cancelar</button>
+            <button type="button" class="btn-reset" id="btnConfirmarReset" disabled onclick="ejecutarResetRifa()">Sí, borrar todo</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // URL DE TU WEB APP DE GOOGLE
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzaWFT9BdK686vhYeNtLALM3-bwexum4X_b80vdOQ3Krj3V-1xY6HxRA47c_-yNg-wHRg/exec";
+
+    const IDS_COLORES = ["colFondo", "colFuenteDescripcion", "colFuenteTitulo", "colFuenteNumeros", "colFuenteNumerosTapados", "colCasillaTapa"];
+
+    // Habilita o deshabilita los selectores de color según la casilla "por defecto"
+    document.getElementById('coloresDefecto').addEventListener('change', function() {
+        const usarDefecto = this.checked;
+        IDS_COLORES.forEach(id => document.getElementById(id).disabled = usarDefecto);
+    });
+
+    // Cargar la configuración actual al iniciar el panel
+    window.addEventListener('DOMContentLoaded', () => {
+        fetch(`${WEB_APP_URL}?accion=obtener_config`)
+        .then(res => res.json())
+        .then(data => {
+            if(data.error) return;
+            document.getElementById('tituloRifa').value = data.titulo || '';
+            document.getElementById('descripcionRifa').value = data.descripcion || '';
+            document.getElementById('encargado').value = data.encargado || '';
+            document.getElementById('fechaSorteo').value = data.fecha || '';
+            document.getElementById('valorRifa').value = data.valor || '';
+            document.getElementById('medioPago').value = data.medio || '';
+            document.getElementById('whatsapp').value = data.whatsapp || '';
+            document.getElementById('unicaParticipacion').value = data.unico || 'NO';
+            document.getElementById('alerta1').value = data.u2 || 0;
+            document.getElementById('alerta2').value = data.w2 || 0;
+            document.getElementById('alerta3').value = data.y2 || 0;
+
+            // Colores guardados en MENU!B24:B29.
+            // El servidor devuelve "" para cada color en DEFECTO.
+            const c = data.colores || {};
+            const hayPersonalizados = !!(c.fondo || c.fuenteDescripcion || c.fuenteTitulo || c.fuenteNumeros || c.fuenteNumerosTapados || c.casillaTapa);
+
+            if (hayPersonalizados) {
+                document.getElementById('coloresDefecto').checked = false;
+                IDS_COLORES.forEach(id => document.getElementById(id).disabled = false);
+                if (c.fondo) document.getElementById('colFondo').value = c.fondo;
+                if (c.fuenteDescripcion) document.getElementById('colFuenteDescripcion').value = c.fuenteDescripcion;
+                if (c.fuenteTitulo) document.getElementById('colFuenteTitulo').value = c.fuenteTitulo;
+                if (c.fuenteNumeros) document.getElementById('colFuenteNumeros').value = c.fuenteNumeros;
+                if (c.fuenteNumerosTapados) document.getElementById('colFuenteNumerosTapados').value = c.fuenteNumerosTapados;
+                if (c.casillaTapa) document.getElementById('colCasillaTapa').value = c.casillaTapa;
+            }
+        })
+        .catch(err => console.error("Error cargando configuración inicial:", err));
+    });
+
+    document.getElementById('formConfig').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnGuardar');
+        const textoOriginal = btn.innerText;
+        btn.innerText = 'Guardando cambios...';
+        btn.disabled = true;
+
+        // Colores: por defecto (DEFECTO en la hoja) o valores personalizados
+        const usarDefecto = document.getElementById('coloresDefecto').checked;
+        const colores = usarDefecto ? { defecto: true } : {
+            fondo: document.getElementById('colFondo').value,
+            fuenteDescripcion: document.getElementById('colFuenteDescripcion').value,
+            fuenteTitulo: document.getElementById('colFuenteTitulo').value,
+            fuenteNumeros: document.getElementById('colFuenteNumeros').value,
+            fuenteNumerosTapados: document.getElementById('colFuenteNumerosTapados').value,
+            casillaTapa: document.getElementById('colCasillaTapa').value
+        };
+
+        const datos = {
+            action: "actualizarConfiguracion",
+            encargado: document.getElementById('encargado').value,
+            fechaSorteo: document.getElementById('fechaSorteo').value,
+            valorRifa: document.getElementById('valorRifa').value,
+            medioPago: document.getElementById('medioPago').value,
+            whatsapp: document.getElementById('whatsapp').value,
+            alerta1: document.getElementById('alerta1').value,
+            alerta2: document.getElementById('alerta2').value,
+            alerta3: document.getElementById('alerta3').value,
+            unicaParticipacion: document.getElementById('unicaParticipacion').value,
+            tituloRifa: document.getElementById('tituloRifa').value,
+            descripcionRifa: document.getElementById('descripcionRifa').value,
+            colores: colores
+        };
+
+        fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(datos)
+        })
+        .then(() => {
+            alert('¡Configuración enviada con éxito!\nLos datos se están aplicando en tu Google Sheet.');
+            btn.innerText = textoOriginal;
+            btn.disabled = false;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Hubo un problema al conectar con el servidor.');
+            btn.innerText = textoOriginal;
+            btn.disabled = false;
+        });
+    });
+
+    // ====================================================================
+    // RESET RIFA — doble validación (palabra RESET + clave de MENU!B30)
+    // ====================================================================
+    function abrirModalReset() {
+        document.getElementById('palabraReset').value = '';
+        document.getElementById('claveReset').value = '';
+        document.getElementById('btnConfirmarReset').disabled = true;
+        document.getElementById('modalReset').style.display = 'flex';
+    }
+
+    function cerrarModalReset() {
+        document.getElementById('modalReset').style.display = 'none';
+    }
+
+    // El botón rojo solo se habilita cuando se escribe exactamente RESET
+    function validarPalabraReset() {
+        const palabra = document.getElementById('palabraReset').value.trim().toUpperCase();
+        document.getElementById('btnConfirmarReset').disabled = (palabra !== 'RESET');
+    }
+
+    function ejecutarResetRifa() {
+        const clave = document.getElementById('claveReset').value.trim();
+        if (clave === '') {
+            alert('Debes ingresar la clave de administrador (celda B30 de la pestaña MENU).');
+            return;
+        }
+
+        const btn = document.getElementById('btnConfirmarReset');
+        btn.disabled = true;
+        btn.innerText = 'Reiniciando...';
+
+        fetch(`${WEB_APP_URL}?accion=reset_rifa&clave=${encodeURIComponent(clave)}&formato=json`)
+        .then(res => res.json())
+        .then(r => {
+            btn.innerText = 'Sí, borrar todo';
+            if (r.status === 'ok') {
+                cerrarModalReset();
+                alert('✅ ' + (r.message || 'Rifa reiniciada correctamente.'));
+                location.reload(); // Recarga el formulario para mostrar la configuración limpia
+            } else {
+                btn.disabled = false;
+                alert('❌ ' + (r.message || 'No fue posible reiniciar la rifa.'));
+            }
+        })
+        .catch(err => {
+            btn.innerText = 'Sí, borrar todo';
+            btn.disabled = false;
+            console.error(err);
+            alert('Error de conexión con el servidor. El reinicio podría NO haberse ejecutado; verifica la hoja de cálculo antes de reintentar.');
+        });
+    }
+</script>
+
+</body>
+</html>
